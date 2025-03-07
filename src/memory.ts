@@ -41,3 +41,19 @@ export const getDb = async () => {
     const db = await JSONFilePreset<Data>('db.json', defaultData);
     return db;
 }
+
+// write to db
+export const addMessages = async (messages: AIMessage[]) => {
+    const db = await getDb();
+
+    const formattedMessages = messages.map(addMetaData);
+    db.data.messages.push(...formattedMessages);
+    await db.write();
+}
+
+// read from db
+export const getMessages = async () => {
+    const db = await getDb();
+
+    return db.data.messages.map(removeMetaData);
+}
