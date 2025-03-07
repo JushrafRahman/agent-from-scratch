@@ -23,6 +23,35 @@
       "content": "Nice to meet you, Scott! How can I assist you today?",
       "id": "70a9b0ae-a6ec-4523-a4dd-81ce5c27e080",
       "createdAt": "2024-11-05T17:40:29.361Z"
+    },
+    {
+      "role": "user",
+      "content": "what is the weather today",
+      "id": "12ff2f38-6155-4bdf-b0b1-b7c67fe7db53",
+      "createdAt": "2025-03-07T07:02:54.546Z"
+    },
+    {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": [
+        {
+          "id": "call_MeIxIIiBvGFSlwiJDqabPAq3",
+          "type": "function",
+          "function": {
+            "name": "get_weather",
+            "arguments": "{}"
+          }
+        }
+      ],
+      "refusal": null,
+      "id": "15206c2c-c216-48f6-9a0c-c05edf08bad5",
+      "createdAt": "2025-03-07T07:02:55.768Z"
+    },
+    {
+      "role": "user",
+      "content": "set me an alarm for 10pm today",
+      "id": "1b8f0c03-7fe3-4b69-bfeb-8ee3a891e0c6",
+      "createdAt": "2025-03-07T07:03:35.023Z"
     }
   ]
 }
