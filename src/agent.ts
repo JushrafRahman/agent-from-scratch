@@ -25,7 +25,7 @@ export const runAgent = async ({
     logMessage(response);
 
     if (response.tool_calls) {
-        console.log('yes has tool calls in response');
+        console.log('LLM identified some tools to call: ');
         console.log(response.tool_calls);
     };
 
