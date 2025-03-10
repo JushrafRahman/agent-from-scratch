@@ -12,7 +12,7 @@ if (!userMessage) {
 // list of our available tools in PC, which will be passed to llm
 const weatherTool = {
   name: 'get_weather',
-  description: `use this to get the weather`,
+  description: `use this to get the weather. Does not need location information`,
   parameters: z.object({
     reasoning: z.string().describe('why did you pick this tool?'),
   }),

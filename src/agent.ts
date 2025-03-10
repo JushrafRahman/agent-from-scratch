@@ -5,35 +5,42 @@ import { showLoader, logMessage } from './ui'
 import { runTool } from './toolRunner'
 
 export const runAgent = async ({
-  userMessage,
-  tools,
+    userMessage,
+    tools,
 }: {
-  userMessage: string
-  tools: any[]
+    userMessage: string
+    tools: any[]
 }) => {
-  await addMessages([{ role: 'user', content: userMessage }])
+    await addMessages([{ role: 'user', content: userMessage }])
 
-  const loader = showLoader('🤔')
-  const history = await getMessages()
+    const loader = showLoader('🤔')
 
-  const response = await runLLM({ messages: history, tools })
+    let iter = 1;
+    while (true) {
+        console.log(`iter: ${iter} `);
+        iter++;
+        
+        const history = await getMessages(); // get previous context
+        const response = await runLLM({ messages: history, tools }); // llm response
+        logMessage(response);
+        
+        await addMessages([response]);
 
-  console.log("LLM response: ");
-  console.log(response);
-  
-  await addMessages([response]);
+        const llmSentAnswer = response.content;
 
-  if (response.tool_calls?.length) {
-    const toolToRun = response.tool_calls[0];
-    loader.update(`executing tool: ${toolToRun.function.name}`);
+        if (llmSentAnswer) {
+            loader.stop();
+            return getMessages();
+        }
 
-    const toolResponse = await runTool(toolToRun, userMessage);
-    await saveToolResponse(toolToRun.id, toolResponse);
-    
-    console.log(`done executing tool: ${toolToRun}`);
-  }
+        // else: LLM wants to run tool
 
-  // logMessage(response)
-  loader.stop()
-  return getMessages()
+        if (response.tool_calls) {
+            const toolToRun = response.tool_calls[0];
+            loader.update(`Executing tool: ${toolToRun.function.name}`);
+            const responseAfterRunningTool = await runTool(toolToRun, userMessage);
+            await saveToolResponse(toolToRun.id, responseAfterRunningTool);
+            loader.update(`Completed executing tool: ${toolToRun.function.name}`);
+        }
+    }
 }

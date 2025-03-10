@@ -45,7 +45,7 @@ export const getMessages = async () => {
 }
 
 export const saveToolResponse = async (toolCallId: string, toolResponse: string) => {
-  addMessages([{
+  await addMessages([{
     role: 'tool',
     tool_call_id: toolCallId,
     content: toolResponse,
