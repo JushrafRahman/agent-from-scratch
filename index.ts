@@ -9,8 +9,9 @@ if (!userMessage) {
   process.exit(1)
 }
 
+// list of our available tools in PC, which will be passed to llm
 const weatherTool = {
-  name: 'get_stuff',
+  name: 'get_weather',
   description: `use this to get the weather`,
   parameters: z.object({
     reasoning: z.string().describe('why did you pick this tool?'),
