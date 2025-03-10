@@ -6,6 +6,9 @@ export const runTool = async (
     toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
     userMessage: string // user prompt
 ) => {
+    console.log('at run tool, passed tool: ');
+    console.log(toolCall);
+
     const input = {
         userMessage,
         toolArgs: JSON.parse(toolCall.function.arguments || '{}'),
