@@ -1,6 +1,5 @@
 import type OpenAI from 'openai'
-
-const getWeather = () => `hot, 90deg`
+import { tools, toolDefs } from './tools'
 
 export const runTool = async (
   toolCall: OpenAI.Chat.Completions.ChatCompletionMessageToolCall,
@@ -12,8 +11,13 @@ export const runTool = async (
   }
 
   switch (toolCall.function.name) {
-    case 'get_weather':
-      return getWeather(input)
+    case toolDefs[0].name:
+      return tools[0](input);
+    case toolDefs[1].name:
+      return tools[1](input);
+    case toolDefs[2].name:
+        return tools[2](input);
+
     default:
       throw new Error(`Unknown tool: ${toolCall.function.name}`)
   }
