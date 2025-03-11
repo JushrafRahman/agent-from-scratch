@@ -1,37 +1,46 @@
-import type { AIMessage } from '../types';
-import { addMessages, getMessages } from './memory';
-import { runLLM } from './llm';
-import { logMessage, showLoader } from './ui';
+import type { AIMessage } from '../types'
+import { addMessages, getMessages, saveToolResponse } from './memory'
+import { runLLM } from './llm'
+import { showLoader, logMessage } from './ui'
+import { runTool } from './toolRunner'
 
 export const runAgent = async ({
-    prompt,
+    userMessage,
     tools,
 }: {
-    prompt: string,
-    tools: any[],
+    userMessage: string
+    tools: any[]
 }) => {
-    await addMessages([{role: 'user', content: prompt}]);
+    await addMessages([{ role: 'user', content: userMessage }])
 
-    const loader = showLoader('Thinking...');
+    const loader = showLoader('🤔')
 
-    const entireContext = await getMessages();
+    let iter = 1;
+    while (true) {
+        console.log(`iter: ${iter} `);
+        iter++;
+        
+        const history = await getMessages(); // get previous context
+        const response = await runLLM({ messages: history, tools }); // llm response
+        logMessage(response);
+        
+        await addMessages([response]);
 
-    const response = await runLLM({
-        messages: entireContext,
-        tools,
-    });
+        const llmSentAnswer = response.content;
 
-    console.log('printing api response');
-    logMessage(response);
+        if (llmSentAnswer) {
+            loader.stop();
+            return getMessages();
+        }
 
-    if (response.tool_calls) {
-        console.log('LLM identified some tools to call: ');
-        console.log(response.tool_calls);
-    };
+        // else: LLM wants to run tool
 
-    await addMessages([response]);
-
-    loader.stop();
-    return getMessages();
-
+        if (response.tool_calls) {
+            const toolToRun = response.tool_calls[0];
+            loader.update(`Executing tool: ${toolToRun.function.name}`);
+            const responseAfterRunningTool = await runTool(toolToRun, userMessage);
+            await saveToolResponse(toolToRun.id, responseAfterRunningTool);
+            loader.update(`Completed executing tool: ${toolToRun.function.name}`);
+        }
+    }
 }
