@@ -3,9 +3,10 @@
 To run the project:
 
 ```bash
-npm start
-# or
-bun run index.ts
+npm start "Your prompt"
+
+Example:
+npm start "tell me a dad joke and generate a meme out of it"
 ```
 
 ## OpenAI API Key
