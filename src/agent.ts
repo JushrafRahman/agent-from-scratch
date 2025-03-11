@@ -13,34 +13,28 @@ export const runAgent = async ({
 }) => {
     await addMessages([{ role: 'user', content: userMessage }])
 
-    const loader = showLoader('🤔')
+  const loader = showLoader('🤔')
 
-    let iter = 1;
-    while (true) {
-        console.log(`iter: ${iter} `);
-        iter++;
-        
-        const history = await getMessages(); // get previous context
-        const response = await runLLM({ messages: history, tools }); // llm response
-        logMessage(response);
-        
-        await addMessages([response]);
+  while (true) {
+    const history = await getMessages()
+    const response = await runLLM({ messages: history, tools })
 
-        const llmSentAnswer = response.content;
+    await addMessages([response])
 
-        if (llmSentAnswer) {
-            loader.stop();
-            return getMessages();
-        }
-
-        // else: LLM wants to run tool
-
-        if (response.tool_calls) {
-            const toolToRun = response.tool_calls[0];
-            loader.update(`Executing tool: ${toolToRun.function.name}`);
-            const responseAfterRunningTool = await runTool(toolToRun, userMessage);
-            await saveToolResponse(toolToRun.id, responseAfterRunningTool);
-            loader.update(`Completed executing tool: ${toolToRun.function.name}`);
-        }
+    if (response.content) {
+      loader.stop()
+      logMessage(response)
+      return getMessages()
     }
+
+    if (response.tool_calls) {
+      const toolCall = response.tool_calls[0]
+      logMessage(response)
+      loader.update(`executing: ${toolCall.function.name}`)
+
+      const toolResponse = await runTool(toolCall, userMessage)
+      await saveToolResponse(toolCall.id, toolResponse)
+      loader.update(`done: ${toolCall.function.name}`)
+    }
+  }
 }
